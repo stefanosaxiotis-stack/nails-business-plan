@@ -6,20 +6,23 @@
 <title>Κατάστημα Νυχιών — Business Plan</title>
 <style>
   :root{
-    /* ---- ΠΡΟΣΩΡΙΝΗ ΠΑΛΕΤΑ (θα αλλάξει όταν δώσεις χρώματα) ---- */
     --bg:#F5F5F4;
     --surface:#FFFFFF;
     --surface-2:#FAFAF9;
     --text:#18181B;
     --text-muted:#71717A;
     --border:#E4E4E7;
-    --accent:#3F3F46;      /* placeholder brand accent */
-    --accent-soft:#E4E4E7;
-    --good:#0F766E;        /* semantic: θετικό */
+    --accent:#0D9488;       /* BRAND — teal (κύριο) */
+    --accent-soft:#CCFBF1;
+    --accent2:#940D5C;      /* BRAND — μαντζέντα (δεύτερο) */
+    --accent2-soft:#F9D9E9;
+    --accent3:#94450D;      /* BRAND — καφέ-πορτοκαλί (τρίτο, χρήση με φειδώ) */
+    --hero-bg:#0B2B27;      /* σκούρη παραλλαγή του teal, για την κύρια κάρτα */
+    --good:#0F766E;         /* semantic: θετικό — ξεχωριστό από τα brand accents */
     --good-soft:#CCFBF1;
-    --warn:#B45309;        /* semantic: προσοχή */
+    --warn:#B45309;         /* semantic: προσοχή */
     --warn-soft:#FEF3C7;
-    --bad:#B91C1C;         /* semantic: αρνητικό */
+    --bad:#B91C1C;          /* semantic: αρνητικό */
     --bad-soft:#FEE2E2;
     --radius:16px;
     --radius-sm:10px;
@@ -64,7 +67,7 @@
   .card p.note{font-size:12.5px;color:var(--text-muted);margin:8px 0 0;line-height:1.45;}
 
   .hero{
-    background:var(--text);
+    background:var(--hero-bg);
     color:#fff;
     border-radius:var(--radius);
     padding:22px 18px;
@@ -188,7 +191,7 @@
   }
   .login-card button{
     width:100%;margin-top:18px;padding:13px;border:none;border-radius:10px;
-    background:var(--text);color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;
+    background:var(--accent);color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;
   }
   .login-card button:disabled{opacity:.5;}
   .login-error{color:var(--bad);font-size:12.5px;margin-top:10px;min-height:1em;}
@@ -637,17 +640,17 @@ function render(){
   // Where revenue goes (stacked bar + legend)
   const other = state.opex.utilities + state.opex.marketing + state.opex.accounting + state.opex.insurance + state.opex.otherOpex + state.opex.depreciation + c.taxAmount;
   renderStackedBar('revenueBreakdown', [
-    { label:'Άμεσο Κόστος', value:c.cogsTotal, color:'#B91C1C' },
-    { label:'Ενοίκιο', value:state.opex.rent, color:'#B45309' },
+    { label:'Άμεσο Κόστος', value:c.cogsTotal, color:'#940D5C' },
+    { label:'Ενοίκιο', value:state.opex.rent, color:'#94450D' },
     { label:'Μισθοδοσία+ΕΦΚΑ', value:c.payroll+c.efkaCost, color:'#71717A' },
     { label:'Λοιπά Έξοδα', value:other, color:'#A1A1AA' },
-    { label:'Καθαρό Κέρδος', value:Math.max(c.netProfit,0), color:'#0F766E' }
+    { label:'Καθαρό Κέρδος', value:Math.max(c.netProfit,0), color:'#0D9488' }
   ]);
 
   renderBarList('marginBars', [
-    { label:'Μεικτό', value:c.grossMargin, color:'#3F3F46' },
-    { label:'EBITDA', value:c.ebitdaMargin, color:'#71717A' },
-    { label:'Καθαρό', value:c.netMargin, color:'#0F766E' }
+    { label:'Μεικτό', value:c.grossMargin, color:'#71717A' },
+    { label:'EBITDA', value:c.ebitdaMargin, color:'#940D5C' },
+    { label:'Καθαρό', value:c.netMargin, color:'#0D9488' }
   ], { max:1, asPct:true });
 
   // ---- Investment tab ----
@@ -660,16 +663,16 @@ function render(){
   document.getElementById('iPaybackMonths').textContent = isFinite(c.paybackMonths) ? c.paybackMonths.toFixed(1) : '—';
 
   renderBarList('investBars', [
-    { label:'Εγγυοδοσία', value:state.invest.deposit, color:'#3F3F46' },
-    { label:'Διαμόρφωση', value:c.constructionCost, color:'#3F3F46' },
-    { label:'Ηλεκτ/Υδρ.', value:state.invest.electrical, color:'#3F3F46' },
-    { label:'Έπιπλα', value:state.invest.furniture, color:'#3F3F46' },
-    { label:'Εξοπλισμός', value:state.invest.equipment, color:'#3F3F46' },
-    { label:'POS', value:state.invest.posSoftware, color:'#3F3F46' },
-    { label:'Απόθεμα', value:state.invest.inventory, color:'#3F3F46' },
-    { label:'Άδειες', value:state.invest.licenses, color:'#3F3F46' },
-    { label:'Branding', value:state.invest.branding, color:'#3F3F46' },
-    { label:'Marketing', value:state.invest.openingMarketing, color:'#3F3F46' },
+    { label:'Εγγυοδοσία', value:state.invest.deposit, color:'#0D9488' },
+    { label:'Διαμόρφωση', value:c.constructionCost, color:'#0D9488' },
+    { label:'Ηλεκτ/Υδρ.', value:state.invest.electrical, color:'#0D9488' },
+    { label:'Έπιπλα', value:state.invest.furniture, color:'#0D9488' },
+    { label:'Εξοπλισμός', value:state.invest.equipment, color:'#0D9488' },
+    { label:'POS', value:state.invest.posSoftware, color:'#0D9488' },
+    { label:'Απόθεμα', value:state.invest.inventory, color:'#0D9488' },
+    { label:'Άδειες', value:state.invest.licenses, color:'#0D9488' },
+    { label:'Branding', value:state.invest.branding, color:'#0D9488' },
+    { label:'Marketing', value:state.invest.openingMarketing, color:'#0D9488' },
     { label:'Απρόβλεπτα', value:c.contingencyAmount, color:'#B45309' }
   ]);
  } catch(err){
