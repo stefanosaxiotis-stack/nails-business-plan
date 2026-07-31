@@ -239,7 +239,7 @@
     </div>
 
     <div class="stat-row">
-      <div class="stat"><div class="l">Έσοδα</div><div class="v num" id="sRevenue">0 €</div></div>
+      <div class="stat"><div class="l">Έσοδα (χωρίς ΦΠΑ)</div><div class="v num" id="sRevenue">0 €</div></div>
       <div class="stat"><div class="l">Μεικτό %</div><div class="v num" id="sGross">0%</div></div>
       <div class="stat"><div class="l">EBITDA %</div><div class="v num" id="sEbitda">0%</div></div>
     </div>
@@ -294,7 +294,7 @@
       <div class="body">
         <div class="field"><label>Ενοίκιο (€/μήνα)</label><input type="number" step="10" data-bind="opex.rent"></div>
         <div class="field"><label>Αριθμός τεχνιτών (σταθ. μισθός)</label><input type="number" step="1" data-bind="opex.numTechs"></div>
-        <div class="field"><label>Μικτός μισθός / τεχνίτη (€)</label><input type="number" step="10" data-bind="opex.salary"></div>
+        <div class="field"><label>Μικτός μισθός / τεχνίτη (€)<span class="hint">Βασικός μηνιαίος μισθός — το app προσθέτει αυτόματα Δώρα/Επίδομα Αδείας (×14/12)</span></label><input type="number" step="10" data-bind="opex.salary"></div>
         <div class="field pct"><label>Εργοδοτικές εισφορές ΕΦΚΑ<span class="hint">% επί μικτού μισθού</span></label><input type="number" step="0.1" data-bind="opex.efkaPct" data-pct="1"></div>
         <div class="field"><label>ΔΕΗ / Κοινόχρηστα (€)</label><input type="number" step="10" data-bind="opex.utilities"></div>
         <div class="field"><label>Marketing (€)</label><input type="number" step="10" data-bind="opex.marketing"></div>
@@ -309,6 +309,7 @@
       <summary>Παραδοχές — Φορολογία &amp; Χωρητικότητα</summary>
       <div class="body">
         <div class="field pct"><label>Συντελεστής φόρου εισοδήματος</label><input type="number" step="0.5" data-bind="tax.taxPct" data-pct="1"></div>
+        <div class="field pct"><label>ΦΠΑ επί πωλήσεων<span class="hint">Οι τιμές τιμοκαταλόγου είναι συνήθως ήδη ΜΕ ΦΠΑ (κανονικός συντελεστής Ελλάδας: 24%)</span></label><input type="number" step="0.5" data-bind="tax.vatPct" data-pct="1"></div>
         <div class="field"><label>Ώρες βάρδιας / ημέρα</label><input type="number" step="0.5" data-bind="capacity.shiftHours"></div>
         <div class="field"><label>Διάλειμμα (λεπτά)</label><input type="number" step="5" data-bind="capacity.breakMin"></div>
         <div class="field"><label>Buffer ανά πελάτισσα (λεπτά)</label><input type="number" step="1" data-bind="capacity.bufferMin"></div>
@@ -406,7 +407,7 @@ const DEFAULTS = {
   ],
   cogs: { materialsPct:0.12, commissionPct:0 },
   opex: { rent:900, numTechs:2, salary:850, efkaPct:0.2429, utilities:150, marketing:200, accounting:150, insurance:50, otherOpex:100, depreciation:80 },
-  tax: { taxPct:0.22 },
+  tax: { taxPct:0.22, vatPct:0.24 },
   capacity: { shiftHours:8, breakMin:30, bufferMin:10 },
   invest: {
     deposit:2700, sqm:35, pricePerSqm:350, electrical:2000, furniture:4500,
@@ -448,8 +449,17 @@ function compute(s){
   const weightedPrice = s.mix.reduce((a,m)=>a+Number(m.price||0)*Number(m.share||0),0);
   const weightedDuration = s.mix.reduce((a,m)=>a+Number(m.duration||0)*Number(m.share||0),0);
 
-  const revenueServices = s.revenue.workdays * s.revenue.clientsPerDay * weightedPrice;
-  const revenueTotal = revenueServices + Number(s.revenue.retailSales||0);
+  // Τιμοκατάλογος = τιμές ΜΕ ΦΠΑ (όπως πάντα φαίνονται στον πελάτη). Το πραγματικό
+  // έσοδο της επιχείρησης είναι η καθαρή αξία, μετά την αφαίρεση του ΦΠΑ που
+  // εισπράττεται για λογαριασμό της ΑΑΔΕ.
+  const vatPct = s.tax.vatPct;
+  const grossRevenueServices = s.revenue.workdays * s.revenue.clientsPerDay * weightedPrice;
+  const grossRevenueRetail = Number(s.revenue.retailSales||0);
+  const grossRevenueTotal = grossRevenueServices + grossRevenueRetail;
+  const vatCollected = grossRevenueTotal - (grossRevenueTotal/(1+vatPct));
+
+  const revenueServices = grossRevenueServices/(1+vatPct);
+  const revenueTotal = grossRevenueTotal/(1+vatPct);
 
   const materialsCost = revenueServices * s.cogs.materialsPct;
   const commissionCost = revenueTotal * s.cogs.commissionPct;
@@ -458,7 +468,11 @@ function compute(s){
   const grossProfit = revenueTotal - cogsTotal;
   const grossMargin = revenueTotal ? grossProfit/revenueTotal : 0;
 
-  const payroll = s.opex.numTechs * s.opex.salary;
+  // Ελλάδα: 14 μισθοί/έτος (12 κανονικοί + Δώρο Χριστουγέννων + Δώρο Πάσχα (μισός) +
+  // Επίδομα Αδείας (μισός) = 2 επιπλέον). Το 14/12 «στρώνει» αυτό το επιπλέον κόστος
+  // ομοιόμορφα σε κάθε μήνα του P&L. Η ΕΦΚΑ εισφορά υπολογίζεται πάνω σε αυτό το ποσό,
+  // άρα καλύπτει σωστά και τις εισφορές επί δώρων/επιδομάτων.
+  const payroll = s.opex.numTechs * s.opex.salary * (14/12);
   const efkaCost = payroll * s.opex.efkaPct;
   const opexTotal = s.opex.rent + payroll + efkaCost + s.opex.utilities + s.opex.marketing + s.opex.accounting + s.opex.insurance + s.opex.otherOpex;
 
@@ -487,6 +501,7 @@ function compute(s){
 
   return {
     mixShareSum, weightedPrice, weightedDuration,
+    grossRevenueTotal, vatCollected, vatPct,
     revenueServices, revenueTotal, materialsCost, commissionCost, cogsTotal,
     grossProfit, grossMargin, payroll, efkaCost, opexTotal, ebitda, ebitdaMargin,
     ebt, taxAmount, netProfit, netMargin,
@@ -609,16 +624,16 @@ function render(){
   // P&L table
   const rows = [
     ['section','ΕΣΟΔΑ',''],
-    ['row','Πωλήσεις Υπηρεσιών', c.revenueServices],
-    ['row','Πωλήσεις Προϊόντων', Number(state.revenue.retailSales)],
-    ['total','ΣΥΝΟΛΟ ΕΣΟΔΩΝ', c.revenueTotal],
+    ['row','Μικτές Πωλήσεις (με ΦΠΑ ' + pct(c.vatPct) + ')', c.grossRevenueTotal],
+    ['row','ΦΠΑ επί πωλήσεων (προς απόδοση)', c.vatCollected],
+    ['total','ΣΥΝΟΛΟ ΕΣΟΔΩΝ (χωρίς ΦΠΑ)', c.revenueTotal],
     ['section','ΑΜΕΣΟ ΚΟΣΤΟΣ',''],
     ['row','Αναλώσιμα/Υλικά', c.materialsCost],
     ['row','Προμήθεια Τεχνιτών', c.commissionCost],
     ['total','ΜΕΙΚΤΟ ΚΕΡΔΟΣ', c.grossProfit],
     ['section','ΛΕΙΤΟΥΡΓΙΚΑ ΕΞΟΔΑ',''],
     ['row','Ενοίκιο', state.opex.rent],
-    ['row','Μισθοδοσία', c.payroll],
+    ['row','Μισθοδοσία (με Δώρα/Επίδομα Αδείας, ×14/12)', c.payroll],
     ['row','Εισφορές ΕΦΚΑ', c.efkaCost],
     ['row','ΔΕΗ/Κοινόχρηστα', state.opex.utilities],
     ['row','Marketing', state.opex.marketing],
