@@ -236,6 +236,7 @@
       <div class="label">Καθαρό Κέρδος / μήνα</div>
       <div class="value num" id="hNetProfit">0 €</div>
       <div class="sub" id="hNetMargin">Καθαρό περιθώριο: 0%</div>
+      <div class="sub" id="hCashFlow" style="margin-top:6px;opacity:.75;">Ταμειακή ροή: 0 €</div>
     </div>
 
     <div class="stat-row">
@@ -290,9 +291,25 @@
     </details>
 
     <details>
+      <summary>Παραδοχές — Ραμπ-απ Εκκίνησης</summary>
+      <div class="body">
+        <div class="field">
+          <label>Μήνες μέχρι πλήρη ταχύτητα<span class="hint">Πόσους μήνες θα πάρει να φτάσεις τις πελάτισσες/ημέρα που έβαλες πιο πάνω</span></label>
+          <input type="number" step="1" data-bind="rampup.months">
+        </div>
+        <div class="field pct">
+          <label>Πληρότητα 1ου μήνα<span class="hint">% της τελικής κίνησης που εκτιμάς για τον πρώτο μήνα λειτουργίας</span></label>
+          <input type="number" step="5" data-bind="rampup.startPct" data-pct="1">
+        </div>
+        <p class="note">Τα σταθερά έξοδα (ενοίκιο, μισθοί, ΕΦΚΑ κ.λπ.) τρέχουν κανονικά από την αρχή ακόμη κι αν η κίνηση είναι χαμηλή — γι' αυτό ο πρώτος χρόνος βγαίνει πάντα χειρότερος από ό,τι δείχνει το μόνιμο μηνιαίο P&L ×12.</p>
+      </div>
+    </details>
+
+    <details>
       <summary>Παραδοχές — Λειτουργικά Έξοδα</summary>
       <div class="body">
         <div class="field"><label>Ενοίκιο (€/μήνα)</label><input type="number" step="10" data-bind="opex.rent"></div>
+        <div class="field pct"><label>Χαρτόσημο ενοικίου<span class="hint">Πάγιο 3,6% επί ενοικίου — νομική υποχρέωση σε επαγγελματική μίσθωση</span></label><input type="number" step="0.1" data-bind="opex.stampDutyPct" data-pct="1"></div>
         <div class="field"><label>Αριθμός τεχνιτών (σταθ. μισθός)</label><input type="number" step="1" data-bind="opex.numTechs"></div>
         <div class="field"><label>Μικτός μισθός / τεχνίτη (€)<span class="hint">Βασικός μηνιαίος μισθός — το app προσθέτει αυτόματα Δώρα/Επίδομα Αδείας (×14/12)</span></label><input type="number" step="10" data-bind="opex.salary"></div>
         <div class="field pct"><label>Εργοδοτικές εισφορές ΕΦΚΑ<span class="hint">% επί μικτού μισθού</span></label><input type="number" step="0.1" data-bind="opex.efkaPct" data-pct="1"></div>
@@ -301,7 +318,7 @@
         <div class="field"><label>Λογιστής / Νομικά (€)</label><input type="number" step="10" data-bind="opex.accounting"></div>
         <div class="field"><label>Ασφάλιστρα (€)</label><input type="number" step="5" data-bind="opex.insurance"></div>
         <div class="field"><label>Λοιπά λειτουργικά (€)</label><input type="number" step="10" data-bind="opex.otherOpex"></div>
-        <div class="field"><label>Αποσβέσεις (€)</label><input type="number" step="5" data-bind="opex.depreciation"></div>
+        <div class="field"><label>Αποσβέσεις<span class="hint">Υπολογίζεται αυτόματα από το tab «Επένδυση» ÷ ωφέλιμη ζωή παγίων — δες εκεί</span></label><b class="num" id="depDisplay" style="padding:8px 0;">—</b></div>
       </div>
     </details>
 
@@ -310,6 +327,7 @@
       <div class="body">
         <div class="field pct"><label>Συντελεστής φόρου εισοδήματος</label><input type="number" step="0.5" data-bind="tax.taxPct" data-pct="1"></div>
         <div class="field pct"><label>ΦΠΑ επί πωλήσεων<span class="hint">Οι τιμές τιμοκαταλόγου είναι συνήθως ήδη ΜΕ ΦΠΑ (κανονικός συντελεστής Ελλάδας: 24%)</span></label><input type="number" step="0.5" data-bind="tax.vatPct" data-pct="1"></div>
+        <div class="field"><label>ΕΦΚΑ ιδιοκτήτη (€/μήνα)<span class="hint">1η κανονική κατηγορία με επικουρική+εφάπαξ (2026) = 338,39€. Βάλε 0 αν καλύπτεσαι ήδη από άλλη δραστηριότητα</span></label><input type="number" step="1" data-bind="tax.ownerEfka"></div>
         <div class="field"><label>Ώρες βάρδιας / ημέρα</label><input type="number" step="0.5" data-bind="capacity.shiftHours"></div>
         <div class="field"><label>Διάλειμμα (λεπτά)</label><input type="number" step="5" data-bind="capacity.breakMin"></div>
         <div class="field"><label>Buffer ανά πελάτισσα (λεπτά)</label><input type="number" step="1" data-bind="capacity.bufferMin"></div>
@@ -331,6 +349,15 @@
     <div class="card">
       <h2>Μεικτό vs EBITDA vs Καθαρό Περιθώριο</h2>
       <div class="viz" id="marginBars"></div>
+    </div>
+
+    <div class="card">
+      <h2>Έτος 1 — Με Ραμπ-απ Εκκίνησης</h2>
+      <div class="stat-row" style="grid-template-columns:repeat(2,1fr);">
+        <div class="stat"><div class="l">Καθαρό Κέρδος Έτους 1 (με ραμπ-απ)</div><div class="v num" id="rYear1Ramp">0 €</div></div>
+        <div class="stat"><div class="l">Αν ήταν πλήρης ταχύτητα από Μήνα 1</div><div class="v num" id="rYear1NoRamp">0 €</div></div>
+      </div>
+      <p class="note" id="rGapNote"></p>
     </div>
 
   </section>
@@ -358,12 +385,15 @@
         <div class="field"><label>Άδειες / Μελέτες (€)</label><input type="number" step="50" data-bind="invest.licenses"></div>
         <div class="field"><label>Σήμανση / Branding (€)</label><input type="number" step="50" data-bind="invest.branding"></div>
         <div class="field"><label>Marketing εγκαινίων (€)</label><input type="number" step="50" data-bind="invest.openingMarketing"></div>
+        <div class="field pct"><label>ΦΠΑ επί επένδυσης<span class="hint">24% πάνω στα υλικά/υπηρεσίες (διαμόρφωση, έπιπλα, εξοπλισμός κ.λπ.) — όχι στην εγγυοδοσία ή τις άδειες</span></label><input type="number" step="0.5" data-bind="invest.vatPct" data-pct="1"></div>
+        <div class="field"><label>Ωφέλιμη ζωή παγίων (έτη)<span class="hint">Διαμόρφωση+έπιπλα+εξοπλισμός÷αυτά τα έτη = μηνιαία απόσβεση</span></label><input type="number" step="1" data-bind="invest.usefulLifeYears"></div>
         <div class="field pct"><label>Απρόβλεπτα<span class="hint">% επί συνόλου</span></label><input type="number" step="1" data-bind="invest.contingencyPct" data-pct="1"></div>
       </div>
     </details>
 
-    <div class="stat-row">
+    <div class="stat-row" style="grid-template-columns:repeat(2,1fr);">
       <div class="stat"><div class="l">Κατασκευαστικό</div><div class="v num" id="iConstruction">0 €</div></div>
+      <div class="stat"><div class="l">ΦΠΑ Επένδυσης</div><div class="v num" id="iVat">0 €</div></div>
       <div class="stat"><div class="l">Απρόβλεπτα</div><div class="v num" id="iContingency">0 €</div></div>
       <div class="stat"><div class="l">Μήνες αποπλ.</div><div class="v num" id="iPaybackMonths">—</div></div>
     </div>
@@ -378,6 +408,37 @@
 
   </section>
 
+  <!-- ======================= TAB 3: ΝΕΚΡΟ ΣΗΜΕΙΟ ======================= -->
+  <section class="tab" id="tab-breakeven">
+
+    <div class="hero">
+      <div class="label">Νεκρό Σημείο — Πελάτισσες / Ημέρα</div>
+      <div class="value num" id="beClients">0</div>
+      <div class="sub" id="beBadgeSub">—</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="l">Τρέχουσα Παραδοχή</div><div class="v num" id="beCurrentClients">0</div></div>
+      <div class="stat"><div class="l">Νεκρό Σημείο</div><div class="v num" id="beClientsStat">0</div></div>
+      <div class="stat"><div class="l">Περιθώριο Ασφαλείας</div><div class="v num" id="beMargin">0%</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Ελάχιστα Έσοδα για Μηδενικό Κέρδος</h2>
+      <div class="stat-row" style="grid-template-columns:repeat(2,1fr);">
+        <div class="stat"><div class="l">Μηνιαία (με ΦΠΑ)</div><div class="v num" id="beMonthly">0 €</div></div>
+        <div class="stat"><div class="l">Ημερήσια (με ΦΠΑ)</div><div class="v num" id="beDaily">0 €</div></div>
+      </div>
+      <p class="note">Κρατάει σταθερά όλα τα τρέχοντα έξοδα (ενοίκιο, μισθοδοσία, ΕΦΚΑ, αποσβέσεις κ.λπ.) — δείχνει πόσο τζίρο χρειάζεσαι ελάχιστα με το σημερινό σου κόστος, όχι με λιγότερο προσωπικό.</p>
+    </div>
+
+    <div class="card">
+      <h2>Τρέχουσα Παραδοχή vs Νεκρό Σημείο</h2>
+      <div class="viz" id="beBars"></div>
+    </div>
+
+  </section>
+
 </main>
 
 <nav class="tabbar">
@@ -388,6 +449,10 @@
   <button data-tab="tab-invest" id="navInvest">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
     Επένδυση
+  </button>
+  <button data-tab="tab-breakeven" id="navBreakeven">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4M4 5h13l-2.5 3L17 11H4"/></svg>
+    Νεκρό Σημείο
   </button>
 </nav>
 
@@ -410,13 +475,14 @@ const DEFAULTS = {
     { name:"Combo Μανι+Πεντι (χωρίς βάψιμο)", price:40, duration:70, share:0.05 }
   ],
   cogs: { materialsPct:0.12, commissionPct:0 },
-  opex: { rent:900, numTechs:2, salary:850, efkaPct:0.2429, utilities:150, marketing:200, accounting:150, insurance:50, otherOpex:100, depreciation:80 },
-  tax: { taxPct:0.22, vatPct:0.24 },
+  rampup: { months:3, startPct:0.5 },
+  opex: { rent:900, stampDutyPct:0.036, numTechs:2, salary:850, efkaPct:0.2429, utilities:150, marketing:200, accounting:150, insurance:50, otherOpex:100 },
+  tax: { taxPct:0.22, vatPct:0.24, ownerEfka:338.39 },
   capacity: { shiftHours:8, breakMin:30, bufferMin:10 },
   invest: {
     deposit:2700, sqm:35, pricePerSqm:350, electrical:2000, furniture:4500,
     equipment:2500, posSoftware:800, inventory:1500, licenses:1500,
-    branding:1000, openingMarketing:500, contingencyPct:0.10
+    branding:1000, openingMarketing:500, vatPct:0.24, contingencyPct:0.10, usefulLifeYears:8
   }
 };
 
@@ -469,6 +535,11 @@ function compute(s){
   const commissionCost = revenueTotal * s.cogs.commissionPct;
   const cogsTotal = materialsCost + commissionCost;
 
+  // materialsCost παραπάνω είναι η καθαρή αξία αγορών· ο προμηθευτής όμως σου χρεώνει
+  // και ΦΠΑ από πάνω, το οποίο ανακτάς (συμψηφίζεται με το ΦΠΑ που εισέπραξες από πωλήσεις).
+  const inputVat = materialsCost * vatPct;
+  const netVatPayable = vatCollected - inputVat;
+
   const grossProfit = revenueTotal - cogsTotal;
   const grossMargin = revenueTotal ? grossProfit/revenueTotal : 0;
 
@@ -478,15 +549,39 @@ function compute(s){
   // άρα καλύπτει σωστά και τις εισφορές επί δώρων/επιδομάτων.
   const payroll = s.opex.numTechs * s.opex.salary * (14/12);
   const efkaCost = payroll * s.opex.efkaPct;
-  const opexTotal = s.opex.rent + payroll + efkaCost + s.opex.utilities + s.opex.marketing + s.opex.accounting + s.opex.insurance + s.opex.otherOpex;
+  const rentWithStamp = s.opex.rent * (1 + s.opex.stampDutyPct);
+  const opexTotal = rentWithStamp + payroll + efkaCost + s.opex.utilities + s.opex.marketing + s.opex.accounting + s.opex.insurance + s.opex.otherOpex + s.tax.ownerEfka;
 
   const ebitda = grossProfit - opexTotal;
   const ebitdaMargin = revenueTotal ? ebitda/revenueTotal : 0;
 
-  const ebt = ebitda - s.opex.depreciation;
+  // investment (υπολογίζεται εδώ γιατί η απόσβεση παρακάτω βασίζεται σε αυτό)
+  const constructionCost = s.invest.sqm * s.invest.pricePerSqm;
+  const investSubtotal = s.invest.deposit + constructionCost + s.invest.electrical + s.invest.furniture +
+                          s.invest.equipment + s.invest.posSoftware + s.invest.inventory + s.invest.licenses +
+                          s.invest.branding + s.invest.openingMarketing;
+  // ΦΠΑ μόνο στα υλικά/υπηρεσίες αγοράς — όχι στην εγγυοδοσία (δεν είναι φορολογητέα παροχή)
+  // ούτε στις άδειες/μελέτες (κρατικά τέλη, συνήθως απαλλάσσονται)
+  const vatableInvestBase = constructionCost + s.invest.electrical + s.invest.furniture + s.invest.equipment +
+                             s.invest.posSoftware + s.invest.inventory + s.invest.branding + s.invest.openingMarketing;
+  const investVatAmount = vatableInvestBase * s.invest.vatPct;
+  const contingencyAmount = investSubtotal * s.invest.contingencyPct;
+  const totalInvestment = investSubtotal + investVatAmount + contingencyAmount;
+
+  // Απόσβεση: μόνο τα πραγματικά πάγια (διαμόρφωση+ηλεκτρολογικά+έπιπλα+εξοπλισμός+POS) —
+  // όχι εγγυοδοσία (δεν είναι πάγιο), απρόβλεπτα (δεν είναι πραγματική αγορά) ή απόθεμα (COGS).
+  const depreciableBase = constructionCost + s.invest.electrical + s.invest.furniture + s.invest.equipment + s.invest.posSoftware;
+  const monthlyDepreciation = s.invest.usefulLifeYears>0 ? depreciableBase / (s.invest.usefulLifeYears*12) : 0;
+
+  const ebt = ebitda - monthlyDepreciation;
   const taxAmount = Math.max(ebt,0) * s.tax.taxPct;
   const netProfit = ebt - taxAmount;
   const netMargin = revenueTotal ? netProfit/revenueTotal : 0;
+
+  // Ταμειακή ροή: η απόσβεση μειώνει σωστά τον φόρο, αλλά ΔΕΝ είναι πραγματική εκροή
+  // μετρητών αυτόν τον μήνα (τα λεφτά έφυγαν ήδη όταν αγοράστηκε ο εξοπλισμός) — άρα
+  // προστίθεται πίσω για να δείξει τι πραγματικά μπαίνει στην τσέπη/λογαριασμό.
+  const cashFlow = netProfit + monthlyDepreciation;
 
   const availMinutes = s.capacity.shiftHours*60 - s.capacity.breakMin;
   const timePerClient = weightedDuration + s.capacity.bufferMin;
@@ -494,23 +589,60 @@ function compute(s){
   const maxStoreCapacity = maxPerTech * s.opex.numTechs;
   const capacityOK = s.revenue.clientsPerDay <= maxStoreCapacity;
 
-  // investment
-  const constructionCost = s.invest.sqm * s.invest.pricePerSqm;
-  const investSubtotal = s.invest.deposit + constructionCost + s.invest.electrical + s.invest.furniture +
-                          s.invest.equipment + s.invest.posSoftware + s.invest.inventory + s.invest.licenses +
-                          s.invest.branding + s.invest.openingMarketing;
-  const contingencyAmount = investSubtotal * s.invest.contingencyPct;
-  const totalInvestment = investSubtotal + contingencyAmount;
-  const paybackMonths = netProfit>0 ? totalInvestment/netProfit : Infinity;
+  // Η περίοδος αποπληρωμής χρησιμοποιεί ταμειακή ροή (όχι λογιστικό κέρδος) — έτσι
+  // υπολογίζεται σωστά η αποπληρωμή σε πραγματικά μετρητά.
+  const paybackMonths = cashFlow>0 ? totalInvestment/cashFlow : Infinity;
+
+  // Ραμπ-απ εκκίνησης: τα σταθερά έξοδα (opexTotal, αποσβέσεις) τρέχουν πλήρη από τον
+  // πρώτο μήνα, αλλά τα έσοδα και το μεταβλητό κόστος (υλικά) ξεκινούν χαμηλότερα και
+  // ανεβαίνουν γραμμικά ως την πλήρη ταχύτητα.
+  const rampMonths = Math.max(0, Math.min(12, s.rampup.months));
+  const rampStartPct = s.rampup.startPct;
+  const avgRampOccupancy = (rampStartPct + 1) / 2;
+  const rampRevenueTotal = revenueTotal * avgRampOccupancy;
+  const rampCogsTotal = cogsTotal * avgRampOccupancy;
+  const rampGrossProfit = rampRevenueTotal - rampCogsTotal;
+  const rampEbitda = rampGrossProfit - opexTotal;
+  const rampEbt = rampEbitda - monthlyDepreciation;
+  const rampTax = Math.max(rampEbt,0) * s.tax.taxPct;
+  const rampNetProfit = rampEbt - rampTax;
+  const year1NetProfitWithRamp = rampNetProfit*rampMonths + netProfit*(12-rampMonths);
+  const year1NetProfitNoRamp = netProfit*12;
+  const year1Gap = year1NetProfitNoRamp - year1NetProfitWithRamp;
+
+  // ΝΕΚΡΟ ΣΗΜΕΙΟ: λύνουμε ως προς τα απαιτούμενα καθαρά έσοδα υπηρεσιών ώστε EBT=0,
+  // κρατώντας σταθερά όλα τα τρέχοντα έξοδα (opexTotal, απόσβεση) και τις πωλήσεις
+  // προϊόντων (retail δεν εξαρτάται από πελάτες/ημέρα σε αυτό το μοντέλο).
+  const FC = opexTotal + monthlyDepreciation;
+  const beDenom = (1 - s.cogs.commissionPct) - s.cogs.materialsPct;
+  const retailNet = grossRevenueRetail/(1+vatPct);
+  let beClientsPerDay, beFeasible, beGrossRevenueTotal;
+  if (beDenom > 0 && weightedPrice > 0) {
+    let beRevenueServices = (FC - retailNet*(1-s.cogs.commissionPct)) / beDenom;
+    beRevenueServices = Math.max(0, beRevenueServices);
+    const beGrossRevenueServices = beRevenueServices * (1+vatPct);
+    beGrossRevenueTotal = beGrossRevenueServices + grossRevenueRetail;
+    beClientsPerDay = beGrossRevenueServices / (s.revenue.workdays * weightedPrice);
+    beFeasible = true;
+  } else {
+    beClientsPerDay = Infinity;
+    beGrossRevenueTotal = Infinity;
+    beFeasible = false;
+  }
+  const beDailyRevenue = beFeasible ? beGrossRevenueTotal / s.revenue.workdays : Infinity;
+  const beSafetyMarginPct = (beFeasible && beClientsPerDay>0) ? (s.revenue.clientsPerDay - beClientsPerDay)/beClientsPerDay : 0;
+  const beAboveBreakeven = beFeasible ? s.revenue.clientsPerDay >= beClientsPerDay : false;
 
   return {
     mixShareSum, weightedPrice, weightedDuration,
-    grossRevenueTotal, vatCollected, vatPct,
+    grossRevenueTotal, vatCollected, inputVat, netVatPayable, vatPct,
     revenueServices, revenueTotal, materialsCost, commissionCost, cogsTotal,
-    grossProfit, grossMargin, payroll, efkaCost, opexTotal, ebitda, ebitdaMargin,
-    ebt, taxAmount, netProfit, netMargin,
+    grossProfit, grossMargin, payroll, efkaCost, rentWithStamp, opexTotal, ebitda, ebitdaMargin,
+    monthlyDepreciation, ebt, taxAmount, netProfit, netMargin, cashFlow,
     availMinutes, timePerClient, maxPerTech, maxStoreCapacity, capacityOK,
-    constructionCost, investSubtotal, contingencyAmount, totalInvestment, paybackMonths
+    constructionCost, investSubtotal, investVatAmount, contingencyAmount, totalInvestment, paybackMonths,
+    rampMonths, rampStartPct, rampNetProfit, year1NetProfitWithRamp, year1NetProfitNoRamp, year1Gap,
+    beClientsPerDay, beFeasible, beGrossRevenueTotal, beDailyRevenue, beSafetyMarginPct, beAboveBreakeven
   };
 }
 
@@ -602,6 +734,8 @@ function render(){
   // Hero
   document.getElementById('hNetProfit').textContent = euro(c.netProfit);
   document.getElementById('hNetMargin').textContent = 'Καθαρό περιθώριο: ' + pct(c.netMargin);
+  document.getElementById('hCashFlow').textContent = 'Ταμειακή ροή (μετρητά): ' + euro(c.cashFlow) + ' — η απόσβεση (' + euro(c.monthlyDepreciation) + ') μειώνει τον φόρο αλλά δεν φεύγει από την τσέπη σου αυτόν τον μήνα';
+  document.getElementById('depDisplay').textContent = euro(c.monthlyDepreciation) + '/μήνα';
   document.getElementById('sRevenue').textContent = euro(c.revenueTotal);
   document.getElementById('sGross').textContent = pct(c.grossMargin);
   document.getElementById('sEbitda').textContent = pct(c.ebitdaMargin);
@@ -629,14 +763,16 @@ function render(){
   const rows = [
     ['section','ΕΣΟΔΑ',''],
     ['row','Μικτές Πωλήσεις (με ΦΠΑ ' + pct(c.vatPct) + ')', c.grossRevenueTotal],
-    ['row','ΦΠΑ επί πωλήσεων (προς απόδοση)', c.vatCollected],
+    ['row','ΦΠΑ επί πωλήσεων (εκροών, προς απόδοση)', c.vatCollected],
+    ['row','ΦΠΑ επί αγορών (εισροών, ανακτήσιμο)', c.inputVat],
+    ['total','Καθαρό ΦΠΑ προς απόδοση στην ΑΑΔΕ', c.netVatPayable],
     ['total','ΣΥΝΟΛΟ ΕΣΟΔΩΝ (χωρίς ΦΠΑ)', c.revenueTotal],
     ['section','ΑΜΕΣΟ ΚΟΣΤΟΣ',''],
     ['row','Αναλώσιμα/Υλικά', c.materialsCost],
     ['row','Προμήθεια Τεχνιτών', c.commissionCost],
     ['total','ΜΕΙΚΤΟ ΚΕΡΔΟΣ', c.grossProfit],
     ['section','ΛΕΙΤΟΥΡΓΙΚΑ ΕΞΟΔΑ',''],
-    ['row','Ενοίκιο', state.opex.rent],
+    ['row','Ενοίκιο (με Χαρτόσημο)', c.rentWithStamp],
     ['row','Μισθοδοσία (με Δώρα/Επίδομα Αδείας, ×14/12)', c.payroll],
     ['row','Εισφορές ΕΦΚΑ', c.efkaCost],
     ['row','ΔΕΗ/Κοινόχρηστα', state.opex.utilities],
@@ -644,8 +780,9 @@ function render(){
     ['row','Λογιστής', state.opex.accounting],
     ['row','Ασφάλιστρα', state.opex.insurance],
     ['row','Λοιπά', state.opex.otherOpex],
+    ['row','ΕΦΚΑ Ιδιοκτήτη', state.tax.ownerEfka],
     ['total','EBITDA', c.ebitda],
-    ['row','Αποσβέσεις', state.opex.depreciation],
+    ['row','Αποσβέσεις', c.monthlyDepreciation],
     ['row','Φόρος Εισοδήματος', c.taxAmount],
     ['result','ΚΑΘΑΡΟ ΚΕΡΔΟΣ', c.netProfit],
   ];
@@ -657,7 +794,7 @@ function render(){
   }).join('');
 
   // Where revenue goes (stacked bar + legend)
-  const other = state.opex.utilities + state.opex.marketing + state.opex.accounting + state.opex.insurance + state.opex.otherOpex + state.opex.depreciation + c.taxAmount;
+  const other = state.opex.utilities + state.opex.marketing + state.opex.accounting + state.opex.insurance + state.opex.otherOpex + c.monthlyDepreciation + state.tax.ownerEfka + c.taxAmount;
   renderStackedBar('revenueBreakdown', [
     { label:'Άμεσο Κόστος', value:c.cogsTotal, color:'#940D5C' },
     { label:'Ενοίκιο', value:state.opex.rent, color:'#94450D' },
@@ -672,12 +809,18 @@ function render(){
     { label:'Καθαρό', value:c.netMargin, color:'#0D9488' }
   ], { max:1, asPct:true });
 
+  document.getElementById('rYear1Ramp').textContent = euro(c.year1NetProfitWithRamp);
+  document.getElementById('rYear1NoRamp').textContent = euro(c.year1NetProfitNoRamp);
+  document.getElementById('rGapNote').textContent =
+    `Με πληρότητα ${pct(c.rampStartPct)} τον 1ο μήνα και ${c.rampMonths} μήνες μέχρι πλήρη ταχύτητα, ο πρώτος χρόνος βγάζει ${euro(c.year1Gap)} λιγότερα από το απλό ×12 — τα σταθερά έξοδα τρέχουν πλήρη ενώ τα έσοδα ανεβαίνουν σταδιακά.`;
+
   // ---- Investment tab ----
   document.getElementById('iTotal').textContent = euro(c.totalInvestment);
   document.getElementById('iPayback').textContent = isFinite(c.paybackMonths)
     ? 'Αποπληρωμή: ' + c.paybackMonths.toFixed(1) + ' μήνες (' + (c.paybackMonths/12).toFixed(1) + ' έτη)'
     : 'Αποπληρωμή: μη υπολογίσιμη (μη κερδοφόρο)';
   document.getElementById('iConstruction').textContent = euro(c.constructionCost);
+  document.getElementById('iVat').textContent = euro(c.investVatAmount);
   document.getElementById('iContingency').textContent = euro(c.contingencyAmount);
   document.getElementById('iPaybackMonths').textContent = isFinite(c.paybackMonths) ? c.paybackMonths.toFixed(1) : '—';
 
@@ -692,8 +835,35 @@ function render(){
     { label:'Άδειες', value:state.invest.licenses, color:'#0D9488' },
     { label:'Branding', value:state.invest.branding, color:'#0D9488' },
     { label:'Marketing', value:state.invest.openingMarketing, color:'#0D9488' },
+    { label:'ΦΠΑ Επένδυσης', value:c.investVatAmount, color:'#940D5C' },
     { label:'Απρόβλεπτα', value:c.contingencyAmount, color:'#B45309' }
   ]);
+
+  // ---- Break-even tab ----
+  document.getElementById('beClients').textContent = c.beFeasible ? Math.ceil(c.beClientsPerDay) : '—';
+  document.getElementById('beCurrentClients').textContent = state.revenue.clientsPerDay;
+  document.getElementById('beClientsStat').textContent = c.beFeasible ? c.beClientsPerDay.toFixed(1) : '—';
+  document.getElementById('beMargin').textContent = c.beFeasible ? pct(c.beSafetyMarginPct) : '—';
+  document.getElementById('beMonthly').textContent = c.beFeasible ? euro(c.beGrossRevenueTotal) : '—';
+  document.getElementById('beDaily').textContent = c.beFeasible ? euro(c.beDailyRevenue) : '—';
+
+  const beSub = document.getElementById('beBadgeSub');
+  if(!c.beFeasible){
+    beSub.textContent = '⚠ Με το τρέχον κόστος αναλωσίμων, δεν υπάρχει νεκρό σημείο μέσω όγκου — κάθε επιπλέον πελάτισσα δεν καλύπτει το κόστος της.';
+  } else if(c.beAboveBreakeven){
+    beSub.textContent = `✅ Είσαι πάνω από το νεκρό σημείο κατά ${pct(c.beSafetyMarginPct)}`;
+  } else {
+    beSub.textContent = `⚠ Είσαι κάτω από το νεκρό σημείο κατά ${pct(Math.abs(c.beSafetyMarginPct))}`;
+  }
+
+  if(c.beFeasible){
+    renderBarList('beBars', [
+      { label:'Τρέχουσα Παραδοχή', value:state.revenue.clientsPerDay, color: c.beAboveBreakeven ? '#0D9488' : '#B91C1C' },
+      { label:'Νεκρό Σημείο', value:c.beClientsPerDay, color:'#71717A' }
+    ]);
+  } else {
+    document.getElementById('beBars').innerHTML = '';
+  }
  } catch(err){
    console.error('render() failed:', err);
  }
@@ -708,7 +878,10 @@ document.querySelectorAll('nav.tabbar button').forEach(btn=>{
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(btn.dataset.tab).classList.add('active');
-    document.getElementById('pageTitle').textContent = btn.dataset.tab==='tab-pnl' ? 'P&L Κατάστημα Νυχιών' : 'Επένδυση & Κατασκευαστικό';
+    document.getElementById('pageTitle').textContent =
+      btn.dataset.tab==='tab-pnl' ? 'P&L Κατάστημα Νυχιών' :
+      btn.dataset.tab==='tab-invest' ? 'Επένδυση & Κατασκευαστικό' :
+      'Νεκρό Σημείο';
     window.scrollTo(0,0);
   });
 });
