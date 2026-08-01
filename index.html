@@ -6,20 +6,20 @@
 <title>Κατάστημα Νυχιών — Business Plan</title>
 <style>
   :root{
-    --bg:#F5F5F4;
+    --bg:#FAF4EF;
     --surface:#FFFFFF;
-    --surface-2:#FAFAF9;
-    --text:#18181B;
-    --text-muted:#71717A;
-    --border:#E4E4E7;
-    --accent:#0D9488;       /* BRAND — teal (κύριο) */
-    --accent-soft:#CCFBF1;
-    --accent2:#940D5C;      /* BRAND — μαντζέντα (δεύτερο) */
-    --accent2-soft:#F9D9E9;
-    --accent3:#94450D;      /* BRAND — καφέ-πορτοκαλί (τρίτο, χρήση με φειδώ) */
-    --hero-bg:#0B2B27;      /* σκούρη παραλλαγή του teal, για την κύρια κάρτα */
-    --good:#0F766E;         /* semantic: θετικό — ξεχωριστό από τα brand accents */
-    --good-soft:#CCFBF1;
+    --surface-2:#F5EAE1;
+    --text:#33261F;
+    --text-muted:#8A7A6E;
+    --border:#E8DDD1;
+    --accent:#8B6250;       /* BRAND — mocha (κύριο) */
+    --accent-soft:#E8DAD0;
+    --accent2:#D4A373;      /* BRAND — ζεστό χρυσό-μπεζ (δεύτερο) */
+    --accent2-soft:#F5E6D3;
+    --accent3:#6B4238;      /* BRAND — βαθύ μόκα-μπορντό (τρίτο, χρήση με φειδώ) */
+    --hero-bg:#2B1D16;      /* βαθύ έσπρέσο, για την κύρια κάρτα */
+    --good:#6E7F52;         /* semantic: θετικό — ζεστό λαδί-πράσινο, ξεχωριστό από τα brand accents */
+    --good-soft:#E7EBDB;
     --warn:#B45309;         /* semantic: προσοχή */
     --warn-soft:#FEF3C7;
     --bad:#B91C1C;          /* semantic: αρνητικό */
@@ -796,17 +796,17 @@ function render(){
   // Where revenue goes (stacked bar + legend)
   const other = state.opex.utilities + state.opex.marketing + state.opex.accounting + state.opex.insurance + state.opex.otherOpex + c.monthlyDepreciation + state.tax.ownerEfka + c.taxAmount;
   renderStackedBar('revenueBreakdown', [
-    { label:'Άμεσο Κόστος', value:c.cogsTotal, color:'#940D5C' },
-    { label:'Ενοίκιο', value:state.opex.rent, color:'#94450D' },
-    { label:'Μισθοδοσία+ΕΦΚΑ', value:c.payroll+c.efkaCost, color:'#71717A' },
-    { label:'Λοιπά Έξοδα', value:other, color:'#A1A1AA' },
-    { label:'Καθαρό Κέρδος', value:Math.max(c.netProfit,0), color:'#0D9488' }
+    { label:'Άμεσο Κόστος', value:c.cogsTotal, color:'#6B4238' },
+    { label:'Ενοίκιο', value:state.opex.rent, color:'#D4A373' },
+    { label:'Μισθοδοσία+ΕΦΚΑ', value:c.payroll+c.efkaCost, color:'#9C8D7F' },
+    { label:'Λοιπά Έξοδα', value:other, color:'#C4B7AA' },
+    { label:'Καθαρό Κέρδος', value:Math.max(c.netProfit,0), color:'#8B6250' }
   ]);
 
   renderBarList('marginBars', [
-    { label:'Μεικτό', value:c.grossMargin, color:'#71717A' },
-    { label:'EBITDA', value:c.ebitdaMargin, color:'#940D5C' },
-    { label:'Καθαρό', value:c.netMargin, color:'#0D9488' }
+    { label:'Μεικτό', value:c.grossMargin, color:'#9C8D7F' },
+    { label:'EBITDA', value:c.ebitdaMargin, color:'#D4A373' },
+    { label:'Καθαρό', value:c.netMargin, color:'#8B6250' }
   ], { max:1, asPct:true });
 
   document.getElementById('rYear1Ramp').textContent = euro(c.year1NetProfitWithRamp);
@@ -825,17 +825,17 @@ function render(){
   document.getElementById('iPaybackMonths').textContent = isFinite(c.paybackMonths) ? c.paybackMonths.toFixed(1) : '—';
 
   renderBarList('investBars', [
-    { label:'Εγγυοδοσία', value:state.invest.deposit, color:'#0D9488' },
-    { label:'Διαμόρφωση', value:c.constructionCost, color:'#0D9488' },
-    { label:'Ηλεκτ/Υδρ.', value:state.invest.electrical, color:'#0D9488' },
-    { label:'Έπιπλα', value:state.invest.furniture, color:'#0D9488' },
-    { label:'Εξοπλισμός', value:state.invest.equipment, color:'#0D9488' },
-    { label:'POS', value:state.invest.posSoftware, color:'#0D9488' },
-    { label:'Απόθεμα', value:state.invest.inventory, color:'#0D9488' },
-    { label:'Άδειες', value:state.invest.licenses, color:'#0D9488' },
-    { label:'Branding', value:state.invest.branding, color:'#0D9488' },
-    { label:'Marketing', value:state.invest.openingMarketing, color:'#0D9488' },
-    { label:'ΦΠΑ Επένδυσης', value:c.investVatAmount, color:'#940D5C' },
+    { label:'Εγγυοδοσία', value:state.invest.deposit, color:'#8B6250' },
+    { label:'Διαμόρφωση', value:c.constructionCost, color:'#8B6250' },
+    { label:'Ηλεκτ/Υδρ.', value:state.invest.electrical, color:'#8B6250' },
+    { label:'Έπιπλα', value:state.invest.furniture, color:'#8B6250' },
+    { label:'Εξοπλισμός', value:state.invest.equipment, color:'#8B6250' },
+    { label:'POS', value:state.invest.posSoftware, color:'#8B6250' },
+    { label:'Απόθεμα', value:state.invest.inventory, color:'#8B6250' },
+    { label:'Άδειες', value:state.invest.licenses, color:'#8B6250' },
+    { label:'Branding', value:state.invest.branding, color:'#8B6250' },
+    { label:'Marketing', value:state.invest.openingMarketing, color:'#8B6250' },
+    { label:'ΦΠΑ Επένδυσης', value:c.investVatAmount, color:'#D4A373' },
     { label:'Απρόβλεπτα', value:c.contingencyAmount, color:'#B45309' }
   ]);
 
@@ -858,8 +858,8 @@ function render(){
 
   if(c.beFeasible){
     renderBarList('beBars', [
-      { label:'Τρέχουσα Παραδοχή', value:state.revenue.clientsPerDay, color: c.beAboveBreakeven ? '#0D9488' : '#B91C1C' },
-      { label:'Νεκρό Σημείο', value:c.beClientsPerDay, color:'#71717A' }
+      { label:'Τρέχουσα Παραδοχή', value:state.revenue.clientsPerDay, color: c.beAboveBreakeven ? '#8B6250' : '#B91C1C' },
+      { label:'Νεκρό Σημείο', value:c.beClientsPerDay, color:'#9C8D7F' }
     ]);
   } else {
     document.getElementById('beBars').innerHTML = '';
