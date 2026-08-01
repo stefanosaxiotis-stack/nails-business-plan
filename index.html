@@ -400,10 +400,14 @@
 const DEFAULTS = {
   revenue: { workdays: 26, clientsPerDay: 12, retailSales: 250 },
   mix: [
-    { name:"Ημιμόνιμο Μανικιούρ (μόνο)", price:18, duration:45, share:0.30 },
-    { name:"Ημιμόνιμο Πεντικιούρ (μόνο)", price:28, duration:60, share:0.15 },
-    { name:"Combo Μανικιούρ+Πεντικιούρ", price:40, duration:75, share:0.40 },
-    { name:"Τεχνητά Νύχια / Extensions", price:40, duration:90, share:0.15 }
+    { name:"Ημιμόνιμο Μανικιούρ", price:22.5, duration:45, share:0.35 },
+    { name:"Απλό Μανικιούρ", price:16, duration:30, share:0.05 },
+    { name:"Express Μανικιούρ", price:12, duration:20, share:0.05 },
+    { name:"Τοποθέτηση (Τεχνητών Νυχιών)", price:45, duration:90, share:0.05 },
+    { name:"Φυσική Ενίσχυση/Συντήρηση", price:32.5, duration:90, share:0.20 },
+    { name:"Ημιμόνιμο Πεντικιούρ", price:27.5, duration:60, share:0.15 },
+    { name:"Απλό Πεντικιούρ", price:20, duration:45, share:0.10 },
+    { name:"Combo Μανι+Πεντι (χωρίς βάψιμο)", price:40, duration:70, share:0.05 }
   ],
   cogs: { materialsPct:0.12, commissionPct:0 },
   opex: { rent:900, numTechs:2, salary:850, efkaPct:0.2429, utilities:150, marketing:200, accounting:150, insurance:50, otherOpex:100, depreciation:80 },
