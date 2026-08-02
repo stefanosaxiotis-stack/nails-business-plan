@@ -232,6 +232,47 @@
     position:absolute;right:16px;top:calc(12px + env(safe-area-inset-top));
     font-size:12px;color:var(--text-muted);background:none;border:none;font-family:inherit;
   }
+  .settings-link{
+    position:absolute;right:92px;top:calc(10px + env(safe-area-inset-top));
+    background:none;border:none;color:var(--text-muted);padding:4px;
+  }
+  .settings-link svg{width:20px;height:20px;}
+
+  /* ---------- Settings modal ---------- */
+  #settingsOverlay{
+    position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.4);
+    display:flex;align-items:flex-end;justify-content:center;
+  }
+  #settingsOverlay.hidden{display:none;}
+  .settings-sheet{
+    background:var(--surface);width:100%;max-width:560px;max-height:88vh;overflow-y:auto;
+    border-radius:20px 20px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));
+  }
+  .settings-sheet h2{font-size:18px;margin:0 0 4px;font-family:'EB Garamond',serif;}
+  .settings-sheet .sub{font-size:12.5px;color:var(--text-muted);margin:0 0 18px;}
+  .close-settings{position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;color:var(--text-muted);line-height:1;}
+  .user-card{border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .user-card .email{font-weight:700;font-size:14px;margin-bottom:8px;word-break:break-all;}
+  .tab-toggles{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+  .tab-toggles label{
+    display:flex;align-items:center;gap:5px;font-size:12px;background:var(--surface-2);
+    border:1px solid var(--border);border-radius:8px;padding:6px 9px;
+  }
+  .user-card .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .user-card input[type="password"]{
+    flex:1;min-width:120px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;
+  }
+  .btn-sm{padding:8px 12px;border-radius:8px;border:none;font-size:12.5px;font-weight:700;font-family:inherit;}
+  .btn-save{background:var(--accent);color:#fff;}
+  .btn-reset{background:var(--surface-2);border:1px solid var(--border);color:var(--text);}
+  .btn-danger{background:var(--bad-soft);color:var(--bad);}
+  #addUserForm{border-top:1px solid var(--border);margin-top:8px;padding-top:18px;}
+  #addUserForm input[type="email"], #addUserForm input[type="password"]{
+    width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-family:inherit;font-size:14px;
+  }
+  .settings-msg{font-size:12.5px;margin-top:10px;min-height:1em;}
+  .settings-msg.error{color:var(--bad);}
+  .settings-msg.success{color:var(--good);}
 </style>
 </head>
 <body>
@@ -253,7 +294,32 @@
   </div>
 </div>
 
+<div id="settingsOverlay" class="hidden">
+  <div class="settings-sheet" style="position:relative;">
+    <button class="close-settings" id="closeSettingsBtn">&times;</button>
+    <h2>Ρυθμίσεις Χρηστών</h2>
+    <p class="sub">Πρόσβαση ανά χρήστη — ποια tabs βλέπει ο καθένας.</p>
+    <div id="usersList"></div>
+    <form id="addUserForm">
+      <h2 style="font-size:15px;">Νέος χρήστης</h2>
+      <input type="email" id="newUserEmail" placeholder="Email" required>
+      <input type="password" id="newUserPassword" placeholder="Κωδικός" required>
+      <div class="tab-toggles" id="newUserToggles">
+        <label><input type="checkbox" data-tab="can_view_branding" checked> Branding</label>
+        <label><input type="checkbox" data-tab="can_view_pnl" checked> P&amp;L</label>
+        <label><input type="checkbox" data-tab="can_view_investment" checked> Επένδυση</label>
+        <label><input type="checkbox" data-tab="can_view_breakeven" checked> Νεκρό Σημείο</label>
+      </div>
+      <button type="submit" class="btn-sm btn-save" style="width:100%;">Δημιουργία Χρήστη</button>
+    </form>
+    <div class="settings-msg" id="settingsMsg"></div>
+  </div>
+</div>
+
 <header style="position:sticky;">
+  <button class="settings-link" id="settingsBtn" style="display:none;" title="Ρυθμίσεις">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  </button>
   <button class="signout-link" id="signOutBtn" style="display:none;">Αποσύνδεση</button>
   <div class="brand">CAT NAILS — ATELIER</div>
   <h1 id="pageTitle" class="brand-serif">Ταυτότητα Επωνυμίας</h1>
@@ -947,6 +1013,9 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
 const SUPABASE_URL = 'https://qxgthcxjrlryloyrvknq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_f-S_-l--qxnqprwhkiSuTA_szLarzIZ';
 const SESSION_KEY = 'nails_supabase_session';
+const ADMIN_UUID = '60a8a529-ddfb-4602-a6a8-ebf717b1ac5a';
+const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/nails-admin`;
+let myPermissions = null; // filled in on login for non-admin users
 
 let currentSession = null;   // {access_token, refresh_token, expires_at, user}
 let currentScenarioId = null;
@@ -1151,6 +1220,7 @@ loginForm.addEventListener('submit', async (e)=>{
     await signIn(email, password);
     hideLogin();
     await loadFromSupabaseOrLocal();
+    await applyAccessControl();
     buildMixTable();
     syncInputsFromState();
     render();
@@ -1161,6 +1231,183 @@ loginForm.addEventListener('submit', async (e)=>{
     loginBtn.textContent = 'Σύνδεση';
   }
 });
+
+// ---------------------------------------------------------------
+// ADMIN — user management (calls the nails-admin Edge Function)
+// ---------------------------------------------------------------
+async function callAdminFunction(action, payload){
+  const token = await getValidAccessToken();
+  if(!token) throw new Error('Δεν είσαι συνδεδεμένος.');
+  const res = await fetch(EDGE_FUNCTION_URL, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, ...payload })
+  });
+  const data = await res.json();
+  if(!res.ok) throw new Error(data.error || 'Κάτι πήγε στραβά.');
+  return data;
+}
+
+const TAB_DEFS = [
+  { key:'can_view_branding', label:'Branding' },
+  { key:'can_view_pnl', label:'P&L' },
+  { key:'can_view_investment', label:'Επένδυση' },
+  { key:'can_view_breakeven', label:'Νεκρό Σημείο' },
+];
+
+function tabTogglesHtml(perms){
+  return TAB_DEFS.map(t => `<label><input type="checkbox" data-tab="${t.key}" ${perms && perms[t.key] ? 'checked' : ''}> ${t.label}</label>`).join('');
+}
+
+async function loadUsersList(){
+  const msgEl = document.getElementById('settingsMsg');
+  const listEl = document.getElementById('usersList');
+  msgEl.textContent = '';
+  listEl.innerHTML = '<p style="font-size:13px;color:var(--text-muted);">Φόρτωση...</p>';
+  try{
+    const data = await callAdminFunction('list_users', {});
+    const permsByUser = {};
+    (data.permissions||[]).forEach(p => permsByUser[p.user_id] = p);
+    const users = data.users || [];
+    listEl.innerHTML = users.map(u => {
+      const perms = permsByUser[u.id] || {};
+      const isAdmin = u.id === ADMIN_UUID;
+      return `<div class="user-card" data-user-id="${u.id}">
+        <div class="email">${u.email}${isAdmin ? ' <span style="color:var(--accent);font-weight:400;">(admin)</span>' : ''}</div>
+        <div class="tab-toggles">${tabTogglesHtml(perms)}</div>
+        <div class="actions">
+          ${!isAdmin ? '<button class="btn-sm btn-save" data-action="save-perms">Αποθήκευση</button>' : ''}
+          <input type="password" placeholder="Νέος κωδικός" class="reset-pw-input">
+          <button class="btn-sm btn-reset" data-action="reset-pw">Αλλαγή Κωδικού</button>
+          ${!isAdmin ? '<button class="btn-sm btn-danger" data-action="delete-user">Διαγραφή</button>' : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }catch(err){
+    listEl.innerHTML = '';
+    msgEl.textContent = err.message;
+    msgEl.className = 'settings-msg error';
+  }
+}
+
+document.getElementById('usersList').addEventListener('click', async (e)=>{
+  const btn = e.target.closest('button[data-action]');
+  if(!btn) return;
+  const card = btn.closest('.user-card');
+  const userId = card.dataset.userId;
+  const msgEl = document.getElementById('settingsMsg');
+  msgEl.textContent = '';
+  try{
+    if(btn.dataset.action === 'save-perms'){
+      const perms = {};
+      card.querySelectorAll('input[type="checkbox"]').forEach(cb => perms[cb.dataset.tab] = cb.checked);
+      btn.disabled = true; btn.textContent = 'Αποθήκευση...';
+      await callAdminFunction('update_permissions', { user_id: userId, permissions: perms });
+      msgEl.textContent = 'Αποθηκεύτηκε.'; msgEl.className = 'settings-msg success';
+      btn.disabled = false; btn.textContent = 'Αποθήκευση';
+    } else if(btn.dataset.action === 'reset-pw'){
+      const input = card.querySelector('.reset-pw-input');
+      if(!input.value || input.value.length < 6){
+        msgEl.textContent = 'Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες.';
+        msgEl.className = 'settings-msg error';
+        return;
+      }
+      btn.disabled = true; btn.textContent = 'Αλλαγή...';
+      await callAdminFunction('reset_password', { user_id: userId, new_password: input.value });
+      input.value = '';
+      msgEl.textContent = 'Ο κωδικός άλλαξε.'; msgEl.className = 'settings-msg success';
+      btn.disabled = false; btn.textContent = 'Αλλαγή Κωδικού';
+    } else if(btn.dataset.action === 'delete-user'){
+      if(!confirm('Σίγουρα θέλεις να διαγράψεις αυτόν τον χρήστη;')) return;
+      btn.disabled = true;
+      await callAdminFunction('delete_user', { user_id: userId });
+      await loadUsersList();
+    }
+  }catch(err){
+    msgEl.textContent = err.message;
+    msgEl.className = 'settings-msg error';
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('addUserForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const msgEl = document.getElementById('settingsMsg');
+  const email = document.getElementById('newUserEmail').value.trim();
+  const password = document.getElementById('newUserPassword').value;
+  const perms = {};
+  document.querySelectorAll('#newUserToggles input[type="checkbox"]').forEach(cb => perms[cb.dataset.tab] = cb.checked);
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true; submitBtn.textContent = 'Δημιουργία...';
+  msgEl.textContent = '';
+  try{
+    await callAdminFunction('create_user', { email, password, permissions: perms });
+    document.getElementById('newUserEmail').value = '';
+    document.getElementById('newUserPassword').value = '';
+    msgEl.textContent = 'Ο χρήστης δημιουργήθηκε.'; msgEl.className = 'settings-msg success';
+    await loadUsersList();
+  }catch(err){
+    msgEl.textContent = err.message;
+    msgEl.className = 'settings-msg error';
+  }finally{
+    submitBtn.disabled = false; submitBtn.textContent = 'Δημιουργία Χρήστη';
+  }
+});
+
+document.getElementById('settingsBtn').addEventListener('click', ()=>{
+  document.getElementById('settingsOverlay').classList.remove('hidden');
+  loadUsersList();
+});
+document.getElementById('closeSettingsBtn').addEventListener('click', ()=>{
+  document.getElementById('settingsOverlay').classList.add('hidden');
+});
+
+// ---------------------------------------------------------------
+// Access control — apply per-user tab visibility (non-admin users)
+// ---------------------------------------------------------------
+async function applyAccessControl(){
+  const userId = currentSession && currentSession.user && currentSession.user.id;
+  if(!userId) return;
+
+  if(userId === ADMIN_UUID){
+    document.getElementById('settingsBtn').style.display = 'block';
+    return; // admin sees everything, no restrictions
+  }
+
+  try{
+    const token = await getValidAccessToken();
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/user_permissions?select=*&user_id=eq.${userId}`, {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${token}`, 'Accept-Profile': 'nails' }
+    });
+    const rows = await res.json();
+    myPermissions = rows[0] || null;
+  }catch(err){
+    console.warn('Failed to load permissions', err);
+    myPermissions = null;
+  }
+
+  if(!myPermissions) return; // no restrictions info -> leave default (all visible)
+
+  const tabToPerm = {
+    navBranding: 'can_view_branding',
+    navPnl: 'can_view_pnl',
+    navInvest: 'can_view_investment',
+    navBreakeven: 'can_view_breakeven',
+  };
+  let firstVisible = null;
+  Object.entries(tabToPerm).forEach(([btnId, permKey])=>{
+    const btn = document.getElementById(btnId);
+    if(!btn) return;
+    const allowed = myPermissions[permKey] !== false;
+    btn.style.display = allowed ? '' : 'none';
+    if(allowed && !firstVisible) firstVisible = btn;
+  });
+
+  const activeBtn = document.querySelector('nav.tabbar button.active');
+  if(activeBtn && activeBtn.style.display === 'none' && firstVisible){
+    firstVisible.click();
+  }
+}
 
 signOutBtn.addEventListener('click', async ()=>{
   await signOut();
@@ -1194,6 +1441,7 @@ async function loadFromSupabaseOrLocal(){
   if(token){
     hideLogin();
     await loadFromSupabaseOrLocal();
+    await applyAccessControl();
   } else {
     showLogin();
     await loadSaved(); // show something sensible behind the overlay while waiting for login
